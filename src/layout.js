@@ -3,6 +3,8 @@ import { Link, Outlet } from 'react-router-dom'
 import { slide as Menu } from 'react-burger-menu';
 import { Button, Icon } from 'react-materialize';
 import PropTypes from 'prop-types';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 
 const Layout = ({currentUser, signIn, signOut}) => {
   return (
@@ -28,8 +30,8 @@ const Layout = ({currentUser, signIn, signOut}) => {
           <Outlet/>
         </main>
         { currentUser
-          ? <Button onClick={signOut} floating large className='btn-login' icon={<Icon medium>account_balance_wallet</Icon>} tooltip={'Log out ' + currentUser.accountId + '.'} />
-          : <Button onClick={signIn} floating large className='btn-login' icon={<Icon medium>broken_image</Icon>} tooltip='Log in using NEAR wallet.' />
+          ? <Button onClick={signOut} floating large className='btn-login' icon={<AccountBalanceWalletIcon fontSize="medium" />} tooltip={'Log out ' + currentUser.accountId + '.'} />
+          : <Button onClick={signIn} floating large className='btn-login' icon={<BrokenImageIcon fontSize="medium" />} tooltip='Log in using NEAR wallet.' />
         }
     </div>
   );
