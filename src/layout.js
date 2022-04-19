@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom'
 import { slide as Menu } from 'react-burger-menu';
-import { Button, Icon } from 'react-materialize';
+import { Button } from 'react-materialize';
 import PropTypes from 'prop-types';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import BrokenImageIcon from '@mui/icons-material/BrokenImage';
