@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Big from 'big.js';
 import SignIn from './components/SignIn';
-import { Button } from 'react-materialize';
 import Layout from './layout';
 import NotFound from './components/404.jsx';
 import Dashboard from './components/Dashboard.jsx';
