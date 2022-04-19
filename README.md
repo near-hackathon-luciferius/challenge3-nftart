@@ -6,7 +6,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `env CONTRACT_NAME=hello.cryptosketches.testnet npm run start`
+### `env CONTRACT_NAME=nftart.cryptosketches.testnet npm run start`
 
 Runs the app in the development mode.\
 Open [http://localhost:1234](http://localhost:1234) to view it in the browser.
