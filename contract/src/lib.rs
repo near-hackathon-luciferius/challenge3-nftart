@@ -18,16 +18,13 @@ NOTES:
 use near_contract_standards::non_fungible_token::metadata::{
     NFTContractMetadata, NonFungibleTokenMetadataProvider, TokenMetadata, NFT_METADATA_SPEC,
 };
-use near_contract_standards::non_fungible_token::{Token, TokenId};
 use near_contract_standards::non_fungible_token::NonFungibleToken;
+use near_contract_standards::non_fungible_token::{Token, TokenId};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LazyOption;
-use near_sdk::json_types::ValidAccountId;
 use near_sdk::{
-    env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault, Promise, PromiseOrValue,
+    env, near_bindgen, require, AccountId, BorshStorageKey, PanicOnDefault, Promise, PromiseOrValue,
 };
-
-near_sdk::setup_alloc!();
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -52,7 +49,7 @@ impl Contract {
     /// Initializes the contract owned by `owner_id` with
     /// default metadata (for example purposes only).
     #[init]
-    pub fn new_default_meta(owner_id: ValidAccountId) -> Self {
+    pub fn new_default_meta(owner_id: AccountId) -> Self {
         Self::new(
             owner_id,
             NFTContractMetadata {
@@ -68,8 +65,8 @@ impl Contract {
     }
 
     #[init]
-    pub fn new(owner_id: ValidAccountId, metadata: NFTContractMetadata) -> Self {
-        assert!(!env::state_exists(), "Already initialized");
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
+        require!(!env::state_exists(), "Already initialized");
         metadata.assert_valid();
         Self {
             tokens: NonFungibleToken::new(
@@ -83,7 +80,7 @@ impl Contract {
         }
     }
 
-    /// Mint a new token with ID=`token_id` belonging to `receiver_id`.
+    /// Mint a new token with ID=`token_id` belonging to `token_owner_id`.
     ///
     /// Since this example implements metadata, it also requires per-token metadata to be provided
     /// in this call. `self.tokens.mint` will also require it to be Some, since
@@ -95,10 +92,11 @@ impl Contract {
     pub fn nft_mint(
         &mut self,
         token_id: TokenId,
-        receiver_id: ValidAccountId,
+        token_owner_id: AccountId,
         token_metadata: TokenMetadata,
     ) -> Token {
-        self.tokens.mint(token_id, receiver_id, Some(token_metadata))
+        assert_eq!(env::predecessor_account_id(), self.tokens.owner_id, "Unauthorized");
+        self.tokens.internal_mint(token_id, token_owner_id, Some(token_metadata))
     }
 }
 
@@ -117,12 +115,13 @@ impl NonFungibleTokenMetadataProvider for Contract {
 mod tests {
     use near_sdk::test_utils::{accounts, VMContextBuilder};
     use near_sdk::testing_env;
+    use std::collections::HashMap;
 
     use super::*;
 
     const MINT_STORAGE_COST: u128 = 5870000000000000000000;
 
-    fn get_context(predecessor_account_id: ValidAccountId) -> VMContextBuilder {
+    fn get_context(predecessor_account_id: AccountId) -> VMContextBuilder {
         let mut builder = VMContextBuilder::new();
         builder
             .current_account_id(accounts(0))
@@ -154,7 +153,7 @@ mod tests {
         testing_env!(context.build());
         let contract = Contract::new_default_meta(accounts(1).into());
         testing_env!(context.is_view(true).build());
-        assert_eq!(contract.nft_token("1".to_string()), None);
+        assert_eq!(contract.nft_token("100".to_string()), None);
     }
 
     #[test]
@@ -177,10 +176,10 @@ mod tests {
             .predecessor_account_id(accounts(0))
             .build());
 
-        let token_id = "0".to_string();
+        let token_id = "1".to_string();
         let token = contract.nft_mint(token_id.clone(), accounts(0), sample_token_metadata());
         assert_eq!(token.token_id, token_id);
-        assert_eq!(token.owner_id, accounts(0).to_string());
+        assert_eq!(token.owner_id, accounts(0));
         assert_eq!(token.metadata.unwrap(), sample_token_metadata());
         assert_eq!(token.approved_account_ids.unwrap(), HashMap::new());
     }
@@ -196,7 +195,7 @@ mod tests {
             .attached_deposit(MINT_STORAGE_COST)
             .predecessor_account_id(accounts(0))
             .build());
-        let token_id = "0".to_string();
+        let token_id = "2".to_string();
         contract.nft_mint(token_id.clone(), accounts(0), sample_token_metadata());
 
         testing_env!(context
@@ -214,7 +213,7 @@ mod tests {
             .build());
         if let Some(token) = contract.nft_token(token_id.clone()) {
             assert_eq!(token.token_id, token_id);
-            assert_eq!(token.owner_id, accounts(1).to_string());
+            assert_eq!(token.owner_id, accounts(1));
             assert_eq!(token.metadata.unwrap(), sample_token_metadata());
             assert_eq!(token.approved_account_ids.unwrap(), HashMap::new());
         } else {
@@ -233,7 +232,7 @@ mod tests {
             .attached_deposit(MINT_STORAGE_COST)
             .predecessor_account_id(accounts(0))
             .build());
-        let token_id = "0".to_string();
+        let token_id = "3".to_string();
         contract.nft_mint(token_id.clone(), accounts(0), sample_token_metadata());
 
         // alice approves bob
@@ -264,7 +263,7 @@ mod tests {
             .attached_deposit(MINT_STORAGE_COST)
             .predecessor_account_id(accounts(0))
             .build());
-        let token_id = "0".to_string();
+        let token_id = "4".to_string();
         contract.nft_mint(token_id.clone(), accounts(0), sample_token_metadata());
 
         // alice approves bob
@@ -302,7 +301,7 @@ mod tests {
             .attached_deposit(MINT_STORAGE_COST)
             .predecessor_account_id(accounts(0))
             .build());
-        let token_id = "0".to_string();
+        let token_id = "5".to_string();
         contract.nft_mint(token_id.clone(), accounts(0), sample_token_metadata());
 
         // alice approves bob
