@@ -82506,63 +82506,7 @@ class NotFound extends _react.default.Component {
 
 var _default = NotFound;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../images/404.jpg":"images/404.jpg"}],"components/Form.jsx":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = Form;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _reactMaterialize = require("react-materialize");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function Form(_ref) {
-  let {
-    onSubmit,
-    currentUser
-  } = _ref;
-  return /*#__PURE__*/_react.default.createElement("form", {
-    onSubmit: onSubmit
-  }, /*#__PURE__*/_react.default.createElement("fieldset", {
-    id: "fieldset"
-  }, /*#__PURE__*/_react.default.createElement("p", null, "Say hello, ", currentUser.accountId, "!"), /*#__PURE__*/_react.default.createElement("div", {
-    className: "highlight"
-  }, /*#__PURE__*/_react.default.createElement(_reactMaterialize.TextInput, {
-    autoComplete: "off",
-    autoFocus: true,
-    id: "name_prompt",
-    className: "name_input",
-    label: "Your name",
-    required: true
-  })), /*#__PURE__*/_react.default.createElement(_reactMaterialize.Button, {
-    type: "submit",
-    value: "hello",
-    small: true,
-    className: "margin_button",
-    tooltip: "Executes the method hello which returns a message from NEAR. This does not require a confirmation."
-  }, "Hello"), /*#__PURE__*/_react.default.createElement(_reactMaterialize.Button, {
-    type: "submit",
-    value: "remember",
-    small: true,
-    className: "margin_button",
-    tooltip: "Executes the method remember_me which stores the given name in the smart contract. This does require a confirmation."
-  }, "Remember me")));
-}
-
-Form.propTypes = {
-  onSubmit: _propTypes.default.func.isRequired,
-  currentUser: _propTypes.default.shape({
-    accountId: _propTypes.default.string.isRequired,
-    balance: _propTypes.default.string.isRequired
-  })
-};
-},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-materialize":"../node_modules/react-materialize/lib/index.js"}],"components/Dashboard.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../images/404.jpg":"images/404.jpg"}],"components/Dashboard.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -82574,7 +82518,7 @@ var _react = _interopRequireDefault(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
-var _Form = _interopRequireDefault(require("./Form"));
+var _reactRouterDom = require("react-router-dom");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -82585,10 +82529,13 @@ const Dashboard = _ref => {
     onSubmit,
     currentUser
   } = _ref;
-  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("header", null, /*#__PURE__*/_react.default.createElement("h1", null, "NEAR Challenge #3 - NFT Art - ", version)), /*#__PURE__*/_react.default.createElement("h5", null, "Status: ", answer), /*#__PURE__*/_react.default.createElement(_Form.default, {
-    onSubmit: onSubmit,
-    currentUser: currentUser
-  }));
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("header", null, /*#__PURE__*/_react.default.createElement("h1", null, "NEAR Challenge #3 - NFT Art - ", version)), /*#__PURE__*/_react.default.createElement("h5", null, "Head over to ", /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+    className: "menu-item",
+    to: "/collection"
+  }, "your collection"), "to mint you first artwork or go to ", /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+    className: "menu-item",
+    to: "/marketplace"
+  }, "the marketplace"), " to discover what others created."));
 };
 
 Dashboard.propTypes = {
@@ -82602,7 +82549,7 @@ Dashboard.propTypes = {
 };
 var _default = Dashboard;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","./Form":"components/Form.jsx"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-router-dom":"../node_modules/react-router-dom/index.js"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -111715,7 +111662,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57170" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57648" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

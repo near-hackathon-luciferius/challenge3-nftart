@@ -1,14 +1,15 @@
-import React from 'react'
+import React from 'react';
 import PropTypes from 'prop-types';
-import Form from './Form';
+import { Link } from 'react-router-dom';
 
 const Dashboard = ({version, answer, onSubmit, currentUser}) => {
    return <>
                  <header>
                    <h1>NEAR Challenge #3 - NFT Art - {version}</h1>
                  </header>      
-                 <h5>Status: { answer }</h5>
-                 <Form onSubmit={onSubmit} currentUser={currentUser} />
+                 <h5>Head over to <Link className="menu-item" to="/collection">your collection</Link> 
+                     to mint you first artwork or go to <Link className="menu-item" to="/marketplace">the marketplace</Link> to discover what others created.
+                 </h5>
              </>
 }
 
