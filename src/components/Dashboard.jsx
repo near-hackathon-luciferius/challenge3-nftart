@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-const Dashboard = ({version, answer, onSubmit, currentUser}) => {
+const Dashboard = ({version, currentUser}) => {
    return <>
                  <header>
                    <h1>NEAR Challenge #3 - NFT Art - {version}</h1>
@@ -15,8 +15,6 @@ const Dashboard = ({version, answer, onSubmit, currentUser}) => {
 
 Dashboard.propTypes = {
   version: PropTypes.string.isRequired,
-  answer: PropTypes.string.isRequired,
-  onSubmit: PropTypes.func.isRequired,
   currentUser: PropTypes.shape({
     accountId: PropTypes.string.isRequired,
     balance: PropTypes.string.isRequired

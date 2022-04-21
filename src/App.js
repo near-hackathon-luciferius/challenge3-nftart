@@ -5,6 +5,7 @@ import SignIn from './components/SignIn';
 import Layout from './layout';
 import NotFound from './components/404.jsx';
 import Dashboard from './components/Dashboard.jsx';
+import Collection from './components/Collection.jsx';
 import 'materialize-css/dist/css/materialize.css'
 import './App.css';
 import { Route, Routes } from 'react-router-dom'
@@ -13,39 +14,19 @@ require('materialize-css');
 
 const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
 
-const App = ({ contract, currentUser, nearConfig, wallet, lastTransaction, provider, errorMessage }) => {
-  const [answer, setAnswer] = useState(errorMessage ? decodeURI(errorMessage) : currentUser ? "Thinking please wait..." : "Please login first.");
+const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const onSubmit = (e) => {
+  const onNftMint = (e) => {
     e.preventDefault();
 
     const { fieldset, name_prompt } = e.target.elements;
-
-    fieldset.disabled = true;
-    //Big(donation.value || '0').times(10 ** 24).toFixed()
-    if (e.nativeEvent.submitter.value === 'hello') {        
-        contract.hello(
-          { name: name_prompt.value },
-          BOATLOAD_OF_GAS,
-          0
-        ).then((answer) => {
-          fieldset.disabled = false;
-          name_prompt.value = '';
-          name_prompt.focus();
-          setAnswer(answer);
-        });
-    }
-    else {
-        contract.remember_me(
-          { name: name_prompt.value },
-          BOATLOAD_OF_GAS,
-          Big('0.00045').times(10 ** 24).toFixed()
-        ).then((answer) => {
-          fieldset.disabled = false;
-          name_prompt.value = '';
-          name_prompt.focus();
-          setAnswer(answer);
-        });
+    setErrorMessage(null);
+    
+    let file = file_chooser.files[0];
+    
+    if (!file){
+        setErrorMessage('No file was chosen.');
     }
   };
   
@@ -62,35 +43,18 @@ const App = ({ contract, currentUser, nearConfig, wallet, lastTransaction, provi
     wallet.signOut();
     window.location.replace(window.location.origin + window.location.pathname);
   };
-  
-  useEffect(() => {
-      if (currentUser && lastTransaction && !errorMessage) {
-          getState(lastTransaction, currentUser.accountId);
-      }
-      else if (currentUser && !errorMessage){
-          getLastRememberedMessage(currentUser.accountId);
-      }
-      window.history.pushState({}, "", window.location.origin + window.location.pathname);
-
-      async function getState(txHash, accountId) {
-        const result = await provider.txStatus(txHash, accountId);
-        setAnswer(result.receipts_outcome[0].outcome.logs.pop());
-      }
-      
-      async function getLastRememberedMessage(accountId) {
-        const result = await contract.get_last_message({ account_id: accountId });
-        setAnswer(result);
-      }
-  }, [currentUser, errorMessage, lastTransaction, contract, provider]);
-  
-
 
   return (
     <Routes>
       <Route path="/" element={<Layout currentUser={currentUser} signIn={signIn} signOut={signOut}/>}>
         <Route index element={
           currentUser
-            ? <Dashboard version={version} onSubmit={onSubmit} currentUser={currentUser} answer={answer}/>
+            ? <Dashboard version={version} currentUser={currentUser}/>
+            : <SignIn/>
+        }/>
+        <Route path="collection" element={
+          currentUser
+            ? <Collection onNftMint={onNftMint} currentUser={currentUser} errorMessage={errorMessage}/>
             : <SignIn/>
         }/>
         <Route path="*" element={<NotFound/>}/>

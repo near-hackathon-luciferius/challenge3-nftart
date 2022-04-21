@@ -25,6 +25,8 @@ use near_sdk::collections::LazyOption;
 use near_sdk::{
     env, near_bindgen, require, AccountId, BorshStorageKey, PanicOnDefault, Promise, PromiseOrValue,
 };
+use chrono::prelude::{DateTime, Utc};
+use std::time::SystemTime;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -95,8 +97,29 @@ impl Contract {
         token_owner_id: AccountId,
         token_metadata: TokenMetadata,
     ) -> Token {
-        assert_eq!(env::predecessor_account_id(), self.tokens.owner_id, "Unauthorized");
-        self.tokens.internal_mint(token_id, token_owner_id, Some(token_metadata))
+        if let 
+                TokenMetadata{
+                    title: Some(_),
+                    description: Some(_),
+                    media: Some(_),
+                    media_hash: Some(_),
+                    copies: Some(1u64),
+                    issued_at: None,
+                    extra: None,
+                    ..
+                } = token_metadata
+        {
+            let mut metadata = token_metadata;
+            let now: DateTime<Utc> = SystemTime::now().into();
+            let now = now.to_rfc3339().to_string();
+            metadata.issued_at = Some(now);
+            metadata.extra = Some("W10=".into());
+            self.tokens.internal_mint(token_id, token_owner_id, Some(metadata))
+        }
+        else
+        {
+            panic!("Token metadata does not have all required fields.");
+        }
     }
 }
 
@@ -119,7 +142,7 @@ mod tests {
 
     use super::*;
 
-    const MINT_STORAGE_COST: u128 = 5870000000000000000000;
+    const MINT_STORAGE_COST: u128 = 10000000000000000000000;
 
     fn get_context(predecessor_account_id: AccountId) -> VMContextBuilder {
         let mut builder = VMContextBuilder::new();
@@ -134,8 +157,8 @@ mod tests {
         TokenMetadata {
             title: Some("Olympus Mons".into()),
             description: Some("The tallest mountain in the charted solar system".into()),
-            media: None,
-            media_hash: None,
+            media: Some("uri".into()),
+            media_hash: Some("RTBEMDBDNjZGODk1RTlEOEEyMTQzNjUyRjlCMUJGNEQ1MEU2NjQxNEM0RUI5NDQzMzdGRTcwMTk5NDFEMjkzQQ==".as_bytes().to_vec().into()),
             copies: Some(1u64),
             issued_at: None,
             expires_at: None,
@@ -180,7 +203,10 @@ mod tests {
         let token = contract.nft_mint(token_id.clone(), accounts(0), sample_token_metadata());
         assert_eq!(token.token_id, token_id);
         assert_eq!(token.owner_id, accounts(0));
-        assert_eq!(token.metadata.unwrap(), sample_token_metadata());
+        let mut metadata = token.metadata.unwrap();
+        metadata.issued_at = None;
+        metadata.extra = None;
+        assert_eq!(metadata, sample_token_metadata());
         assert_eq!(token.approved_account_ids.unwrap(), HashMap::new());
     }
 
@@ -214,7 +240,10 @@ mod tests {
         if let Some(token) = contract.nft_token(token_id.clone()) {
             assert_eq!(token.token_id, token_id);
             assert_eq!(token.owner_id, accounts(1));
-            assert_eq!(token.metadata.unwrap(), sample_token_metadata());
+            let mut metadata = token.metadata.unwrap();
+            metadata.issued_at = None;
+            metadata.extra = None;
+            assert_eq!(metadata, sample_token_metadata());
             assert_eq!(token.approved_account_ids.unwrap(), HashMap::new());
         } else {
             panic!("token not correctly created, or not found by nft_token");

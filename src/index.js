@@ -43,9 +43,9 @@ async function initContract() {
     nearConfig.contractName,
     {
       // View methods are read-only – they don't modify the state, but usually return some value
-      viewMethods: ['get_last_message'],
+      viewMethods: [],
       // Change methods can modify the state, but you don't receive the returned value when called
-      changeMethods: ['hello', 'remember_me'],
+      changeMethods: ['nft_mint'],
       // Sender is the account ID to initialize transactions.
       // getAccountId() will return empty string if user is still unauthorized
       sender: walletConnection.getAccountId(),
@@ -59,15 +59,6 @@ async function initContract() {
 
 window.nearInitPromise = initContract().then(
   ({ contract, currentUser, nearConfig, walletConnection, provider }) => {
-    let urlParams = new URLSearchParams(window.location.search);
-    let lastTransaction;
-    if(urlParams.has('transactionHashes')){
-        lastTransaction = urlParams.get('transactionHashes');
-    }
-    let errorMessage;
-    if(urlParams.has('errorMessage')){
-        errorMessage = urlParams.get('errorMessage');
-    }
     ReactDOM.render(
 	  <Router>
         <App
@@ -75,9 +66,7 @@ window.nearInitPromise = initContract().then(
           currentUser={currentUser}
           nearConfig={nearConfig}
           wallet={walletConnection}
-          lastTransaction={lastTransaction}
           provider={provider}
-          errorMessage={errorMessage}
         />
 	  </Router>,
       document.getElementById('root')

@@ -82525,8 +82525,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 const Dashboard = _ref => {
   let {
     version,
-    answer,
-    onSubmit,
     currentUser
   } = _ref;
   return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("header", null, /*#__PURE__*/_react.default.createElement("h1", null, "NEAR Challenge #3 - NFT Art - ", version)), /*#__PURE__*/_react.default.createElement("h5", null, "Head over to ", /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
@@ -82540,8 +82538,6 @@ const Dashboard = _ref => {
 
 Dashboard.propTypes = {
   version: _propTypes.default.string.isRequired,
-  answer: _propTypes.default.string.isRequired,
-  onSubmit: _propTypes.default.func.isRequired,
   currentUser: _propTypes.default.shape({
     accountId: _propTypes.default.string.isRequired,
     balance: _propTypes.default.string.isRequired
@@ -82549,7 +82545,88 @@ Dashboard.propTypes = {
 };
 var _default = Dashboard;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-router-dom":"../node_modules/react-router-dom/index.js"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-router-dom":"../node_modules/react-router-dom/index.js"}],"components/Form.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = Form;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _reactMaterialize = require("react-materialize");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function Form(_ref) {
+  let {
+    onNftMint,
+    errorMessage
+  } = _ref;
+  return /*#__PURE__*/_react.default.createElement("form", {
+    onSubmit: onNftMint
+  }, /*#__PURE__*/_react.default.createElement("fieldset", {
+    id: "fieldset"
+  }, /*#__PURE__*/_react.default.createElement("p", null, "Choose an image file below. Accepted are .png and .jpeg images only. The maximum file size is 3MB."), errorMessage && /*#__PURE__*/_react.default.createElement("div", {
+    className: "error"
+  }, " ", errorMessage, " "), /*#__PURE__*/_react.default.createElement("div", {
+    className: "highlight"
+  }, /*#__PURE__*/_react.default.createElement("input", {
+    type: "file",
+    id: "file_chooser"
+  })), /*#__PURE__*/_react.default.createElement(_reactMaterialize.Button, {
+    type: "submit",
+    small: true,
+    tooltip: "Mints the chosen image as a NFT."
+  }, "Mint!")));
+}
+
+Form.propTypes = {
+  onNftMint: _propTypes.default.func.isRequired,
+  errorMessage: _propTypes.default.string.isRequired
+};
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-materialize":"../node_modules/react-materialize/lib/index.js"}],"components/Collection.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
+var _Form = _interopRequireDefault(require("./Form"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const Dashboard = _ref => {
+  let {
+    currentUser,
+    onNftMint,
+    errorMessage
+  } = _ref;
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("header", null, /*#__PURE__*/_react.default.createElement("h1", null, currentUser.accountId, "'s Collection")), /*#__PURE__*/_react.default.createElement("h5", null, "Mint a new NFT below."), /*#__PURE__*/_react.default.createElement(_Form.default, {
+    onNftMint: onNftMint,
+    errorMessage: errorMessage
+  }));
+};
+
+Dashboard.propTypes = {
+  onNftMint: _propTypes.default.func.isRequired,
+  errorMessage: _propTypes.default.string.isRequired,
+  currentUser: _propTypes.default.shape({
+    accountId: _propTypes.default.string.isRequired,
+    balance: _propTypes.default.string.isRequired
+  })
+};
+var _default = Dashboard;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","./Form":"components/Form.jsx"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -95075,6 +95152,8 @@ var _ = _interopRequireDefault(require("./components/404.jsx"));
 
 var _Dashboard = _interopRequireDefault(require("./components/Dashboard.jsx"));
 
+var _Collection = _interopRequireDefault(require("./components/Collection.jsx"));
+
 require("materialize-css/dist/css/materialize.css");
 
 require("./App.css");
@@ -95099,38 +95178,21 @@ const App = _ref => {
     currentUser,
     nearConfig,
     wallet,
-    lastTransaction,
-    provider,
-    errorMessage
+    provider
   } = _ref;
-  const [answer, setAnswer] = (0, _react.useState)(errorMessage ? decodeURI(errorMessage) : currentUser ? "Thinking please wait..." : "Please login first.");
+  const [errorMessage, setErrorMessage] = (0, _react.useState)(null);
 
-  const onSubmit = e => {
+  const onNftMint = e => {
     e.preventDefault();
     const {
       fieldset,
       name_prompt
     } = e.target.elements;
-    fieldset.disabled = true; //Big(donation.value || '0').times(10 ** 24).toFixed()
+    setErrorMessage(null);
+    let file = file_chooser.files[0];
 
-    if (e.nativeEvent.submitter.value === 'hello') {
-      contract.hello({
-        name: name_prompt.value
-      }, BOATLOAD_OF_GAS, 0).then(answer => {
-        fieldset.disabled = false;
-        name_prompt.value = '';
-        name_prompt.focus();
-        setAnswer(answer);
-      });
-    } else {
-      contract.remember_me({
-        name: name_prompt.value
-      }, BOATLOAD_OF_GAS, (0, _big.default)('0.00045').times(10 ** 24).toFixed()).then(answer => {
-        fieldset.disabled = false;
-        name_prompt.value = '';
-        name_prompt.focus();
-        setAnswer(answer);
-      });
+    if (!file) {
+      setErrorMessage('No file was chosen.');
     }
   };
 
@@ -95150,27 +95212,6 @@ const App = _ref => {
     window.location.replace(window.location.origin + window.location.pathname);
   };
 
-  (0, _react.useEffect)(() => {
-    if (currentUser && lastTransaction && !errorMessage) {
-      getState(lastTransaction, currentUser.accountId);
-    } else if (currentUser && !errorMessage) {
-      getLastRememberedMessage(currentUser.accountId);
-    }
-
-    window.history.pushState({}, "", window.location.origin + window.location.pathname);
-
-    async function getState(txHash, accountId) {
-      const result = await provider.txStatus(txHash, accountId);
-      setAnswer(result.receipts_outcome[0].outcome.logs.pop());
-    }
-
-    async function getLastRememberedMessage(accountId) {
-      const result = await contract.get_last_message({
-        account_id: accountId
-      });
-      setAnswer(result);
-    }
-  }, [currentUser, errorMessage, lastTransaction, contract, provider]);
   return /*#__PURE__*/_react.default.createElement(_reactRouterDom.Routes, null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/",
     element: /*#__PURE__*/_react.default.createElement(_layout.default, {
@@ -95182,9 +95223,14 @@ const App = _ref => {
     index: true,
     element: currentUser ? /*#__PURE__*/_react.default.createElement(_Dashboard.default, {
       version: version,
-      onSubmit: onSubmit,
+      currentUser: currentUser
+    }) : /*#__PURE__*/_react.default.createElement(_SignIn.default, null)
+  }), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+    path: "collection",
+    element: currentUser ? /*#__PURE__*/_react.default.createElement(_Collection.default, {
+      onNftMint: onNftMint,
       currentUser: currentUser,
-      answer: answer
+      errorMessage: errorMessage
     }) : /*#__PURE__*/_react.default.createElement(_SignIn.default, null)
   }), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "*",
@@ -95210,8 +95256,8 @@ App.propTypes = {
 };
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","big.js":"../node_modules/big.js/big.js","./components/SignIn":"components/SignIn.jsx","./layout":"layout.js","./components/404.jsx":"components/404.jsx","./components/Dashboard.jsx":"components/Dashboard.jsx","materialize-css/dist/css/materialize.css":"../node_modules/materialize-css/dist/css/materialize.css","./App.css":"App.css","react-router-dom":"../node_modules/react-router-dom/index.js","../package.json":"../package.json","materialize-css":"../node_modules/materialize-css/dist/js/materialize.js"}],"config.js":[function(require,module,exports) {
-const CONTRACT_NAME = undefined || 'hello.cryptosketches.testnet';
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","big.js":"../node_modules/big.js/big.js","./components/SignIn":"components/SignIn.jsx","./layout":"layout.js","./components/404.jsx":"components/404.jsx","./components/Dashboard.jsx":"components/Dashboard.jsx","./components/Collection.jsx":"components/Collection.jsx","materialize-css/dist/css/materialize.css":"../node_modules/materialize-css/dist/css/materialize.css","./App.css":"App.css","react-router-dom":"../node_modules/react-router-dom/index.js","../package.json":"../package.json","materialize-css":"../node_modules/materialize-css/dist/js/materialize.js"}],"config.js":[function(require,module,exports) {
+const CONTRACT_NAME = undefined || 'nftart.cryptosketches.testnet';
 
 function getConfig(env) {
   switch (env) {
@@ -111586,9 +111632,9 @@ async function initContract() {
   // accounts can only have one contract deployed to them.
   nearConfig.contractName, {
     // View methods are read-only – they don't modify the state, but usually return some value
-    viewMethods: ['get_last_message'],
+    viewMethods: [],
     // Change methods can modify the state, but you don't receive the returned value when called
-    changeMethods: ['hello', 'remember_me'],
+    changeMethods: ['nft_mint'],
     // Sender is the account ID to initialize transactions.
     // getAccountId() will return empty string if user is still unauthorized
     sender: walletConnection.getAccountId()
@@ -111611,27 +111657,13 @@ window.nearInitPromise = initContract().then(_ref => {
     walletConnection,
     provider
   } = _ref;
-  let urlParams = new URLSearchParams(window.location.search);
-  let lastTransaction;
-
-  if (urlParams.has('transactionHashes')) {
-    lastTransaction = urlParams.get('transactionHashes');
-  }
-
-  let errorMessage;
-
-  if (urlParams.has('errorMessage')) {
-    errorMessage = urlParams.get('errorMessage');
-  }
 
   _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_reactRouterDom.HashRouter, null, /*#__PURE__*/_react.default.createElement(_App.default, {
     contract: contract,
     currentUser: currentUser,
     nearConfig: nearConfig,
     wallet: walletConnection,
-    lastTransaction: lastTransaction,
-    provider: provider,
-    errorMessage: errorMessage
+    provider: provider
   })), document.getElementById('root'));
 });
 },{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","react-router-dom":"../node_modules/react-router-dom/index.js","./App":"App.js","./config.js":"config.js","near-api-js":"../node_modules/near-api-js/lib/browser-index.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -111662,7 +111694,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57648" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61308" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
