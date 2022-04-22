@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { NFTStorage, File } from 'nft.storage';
 import PropTypes from 'prop-types';
 import Big from 'big.js';
@@ -10,7 +10,6 @@ import Collection from './components/Collection.jsx';
 import 'materialize-css/dist/css/materialize.css'
 import './App.css';
 import { Route, Routes } from 'react-router-dom'
-import { SHA256 } from 'react-native-sha';
 var version = require('../package.json').version;
 require('materialize-css');
 
@@ -25,7 +24,7 @@ const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
   const onNftMint = async (e) => {
     e.preventDefault();
 
-    const { fieldset, name_prompt, title_prompt, description_prompt } = e.target.elements;
+    const { fieldset, file_chooser, title_prompt, description_prompt } = e.target.elements;
     
     fieldset.disabled = true;
     setErrorMessage('');
@@ -72,7 +71,7 @@ const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
                             title: title_prompt.value,
                             description: description_prompt.value,
                             media: imageUrl,
-                            media_hash: 'RTBEMDBDNjZGODk1RTlEOEEyMTQzNjUyRjlCMUJGNEQ1MEU2NjQxNEM0RUI5NDQzMzdGRTcwMTk5NDFEMjkzQQ==',
+                            media_hash: 'RTBEMDBDNjZGODk1RTlEOEEyMTQzNjUyRjlCMUJGNEQ1MEU2NjQxNEM0RUI5NDQzMzdGRTcwMTk5NDFEMjkzQQ==', //fixed for now
                             copies: 1,
                             issued_at: Date.now().toString()
                         }
@@ -86,8 +85,6 @@ const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
       title_prompt.focus();
     });
     
-    //Afterwards mint nft
-    //edit build on github to copy files for nft_storage
     //Show images with Spinn loader: https://stackoverflow.com/questions/56902522/react-show-loading-spinner-while-images-load
     //https://reactgo.com/react-display-loading-screen/
   };
