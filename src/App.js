@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NFTStorage, File } from 'nft.storage';
 import PropTypes from 'prop-types';
 import Big from 'big.js';
@@ -7,6 +7,7 @@ import Layout from './layout';
 import NotFound from './components/404.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Collection from './components/Collection.jsx';
+import Marketplace from './components/Marketplace.jsx';
 import 'materialize-css/dist/css/materialize.css'
 import './App.css';
 import { Route, Routes } from 'react-router-dom'
@@ -18,8 +19,9 @@ const NFT_STORAGE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZX
 const VALID_EXTENSIONS = ["png", "jpg", "jpeg"];
 const MAX_SIZE = 3;
 
-const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
+const App = ({ contract, currentUser, nearConfig, wallet, provider, lastTransaction, error }) => {
   const [errorMessage, setErrorMessage] = useState('');
+  const [message, setMessage] = useState('');
 
   const onNftMint = async (e) => {
     e.preventDefault();
@@ -60,9 +62,7 @@ const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
     const content = await file.arrayBuffer();
     const mime = file.type;    
     const result = await storeNFT(new File([content], file.name, { mime }), title_prompt.value, description_prompt.value);
-    const imageUrl = result.data.image.href.replace("ipfs://", "https://ipfs.io/ipfs/");    
-    
-    console.log(imageUrl);
+    const imageUrl = result.data.image.href.replace("ipfs://", "https://ipfs.io/ipfs/");
     
     contract.nft_mint(
       { 
@@ -84,14 +84,21 @@ const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
       description_prompt.value = '';
       title_prompt.focus();
     });
-    
-    //Show images with Spinn loader: https://stackoverflow.com/questions/56902522/react-show-loading-spinner-while-images-load
-    //https://reactgo.com/react-display-loading-screen/
   };
+  
+  useEffect(() => {
+      if (error){
+        setMessage(decodeURI(error));
+      }
+      else if (lastTransaction) {          
+          setMessage(`Successfully minted the NFT in transaction ${lastTransaction}`);
+      }
+      window.history.pushState({}, "", window.location.origin + window.location.pathname);
+  }, [lastTransaction, error]);
   
   const signIn = () => {
     wallet.requestSignIn(
-      {contractId: nearConfig.contractName, methodNames: [contract.hello.name]}, //contract requesting access
+      {contractId: nearConfig.contractName, methodNames: [contract.nft_mint.name]}, //contract requesting access
       'NEAR Challenge #3 - NFT Art', //optional name
       null, //optional URL to redirect to if the sign in was successful
       null //optional URL to redirect to if the sign in was NOT successful
@@ -102,31 +109,33 @@ const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
     wallet.signOut();
     window.location.replace(window.location.origin + window.location.pathname);
   };
-  
-  
 
-    /**
-      * Reads an image file from `image` and stores an NFT with the given name and description.
-      * @param {string} image the file object of an image file
-      * @param {string} name a name for the NFT
-      * @param {string} description a text description for the NFT
-      */
-    const storeNFT = async (image, name, description) => {
-        //TODO convert file to byte array
-        // create a new NFTStorage client using our API key
-        const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY })
+  const clearMessage = () => {
+    setMessage('');
+  };
 
-        // call client.store, passing in the image & metadata
-        return nftstorage.store({
-            image,
-            name,
-            description,
-        })
-    }
+  /**
+    * Reads an image file from `image` and stores an NFT with the given name and description.
+    * @param {string} image the file object of an image file
+    * @param {string} name a name for the NFT
+    * @param {string} description a text description for the NFT
+    */
+  const storeNFT = async (image, name, description) => {
+      //TODO convert file to byte array
+      // create a new NFTStorage client using our API key
+      const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY })
+      
+       // call client.store, passing in the image & metadata
+      return nftstorage.store({
+          image,
+          name,
+          description,
+      })
+  }
 
   return (
     <Routes>
-      <Route path="/" element={<Layout currentUser={currentUser} signIn={signIn} signOut={signOut}/>}>
+      <Route path="/" element={<Layout currentUser={currentUser} signIn={signIn} signOut={signOut} clearMessage={clearMessage} message={message}/>}>
         <Route index element={
           currentUser
             ? <Dashboard version={version} currentUser={currentUser}/>
@@ -134,7 +143,12 @@ const App = ({ contract, currentUser, nearConfig, wallet, provider }) => {
         }/>
         <Route path="collection" element={
           currentUser
-            ? <Collection onNftMint={onNftMint} currentUser={currentUser} errorMessage={errorMessage}/>
+            ? <Collection onNftMint={onNftMint} currentUser={currentUser} errorMessage={errorMessage} contract={contract}/>
+            : <SignIn/>
+        }/>
+        <Route path="marketplace" element={
+          currentUser
+            ? <Marketplace currentUser={currentUser} contract={contract}/>
             : <SignIn/>
         }/>
         <Route path="*" element={<NotFound/>}/>

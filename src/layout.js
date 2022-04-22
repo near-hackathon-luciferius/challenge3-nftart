@@ -5,8 +5,9 @@ import { Button } from 'react-materialize';
 import PropTypes from 'prop-types';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import BrokenImageIcon from '@mui/icons-material/BrokenImage';
+import Popup from './components/Popup';
 
-const Layout = ({currentUser, signIn, signOut}) => {
+const Layout = ({currentUser, signIn, signOut, clearMessage, message}) => {
   return (
     <div id="App">
         <Menu pageWrapId={ "page-wrapper" } outerContainerId={ "App" }>
@@ -19,11 +20,7 @@ const Layout = ({currentUser, signIn, signOut}) => {
           </Link>
 
           <Link className="menu-item" to="/marketplace">
-            Discover
-          </Link>
-
-          <Link className="menu-item" to="/docs">
-            Docs
+            Marketplace
           </Link>
         </Menu>
         <main id="page-wrapper">
@@ -32,7 +29,14 @@ const Layout = ({currentUser, signIn, signOut}) => {
         { currentUser
           ? <Button onClick={signOut} floating large className='btn-login' icon={<AccountBalanceWalletIcon fontSize="medium" />} tooltip={'Log out ' + currentUser.accountId + '.'} />
           : <Button onClick={signIn} floating large className='btn-login' icon={<BrokenImageIcon fontSize="medium" />} tooltip='Log in using NEAR wallet.' />
-        }
+        }        
+        {message && <Popup
+          content={<>
+            <b>A message for you</b>
+            <p>{message}</p>
+          </>}
+          handleClose={clearMessage}
+        />}
     </div>
   );
 };

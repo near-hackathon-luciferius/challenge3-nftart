@@ -43,7 +43,7 @@ async function initContract() {
     nearConfig.contractName,
     {
       // View methods are read-only – they don't modify the state, but usually return some value
-      viewMethods: [],
+      viewMethods: ['nft_supply_for_owner', 'nft_tokens_for_owner', 'nft_total_supply', 'nft_tokens'],
       // Change methods can modify the state, but you don't receive the returned value when called
       changeMethods: ['nft_mint'],
       // Sender is the account ID to initialize transactions.
@@ -59,6 +59,15 @@ async function initContract() {
 
 window.nearInitPromise = initContract().then(
   ({ contract, currentUser, nearConfig, walletConnection, provider }) => {
+    let urlParams = new URLSearchParams(window.location.search);
+    let lastTransaction;
+    if(urlParams.has('transactionHashes')){
+        lastTransaction = urlParams.get('transactionHashes');
+    }
+    let errorMessage;
+    if(urlParams.has('errorMessage')){
+        errorMessage = urlParams.get('errorMessage');
+    }
     ReactDOM.render(
 	  <Router>
         <App
@@ -66,7 +75,9 @@ window.nearInitPromise = initContract().then(
           currentUser={currentUser}
           nearConfig={nearConfig}
           wallet={walletConnection}
+          lastTransaction={lastTransaction}
           provider={provider}
+          error={errorMessage}
         />
 	  </Router>,
       document.getElementById('root')
