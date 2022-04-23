@@ -139,17 +139,17 @@ const App = ({ contract, currentUser, nearConfig, wallet, provider, lastTransact
         <Route index element={
           currentUser
             ? <Dashboard version={version} currentUser={currentUser}/>
-            : <SignIn/>
+            : <SignIn signIn={signIn}/>
         }/>
         <Route path="collection" element={
           currentUser
             ? <Collection onNftMint={onNftMint} currentUser={currentUser} errorMessage={errorMessage} contract={contract}/>
-            : <SignIn/>
+            : <SignIn signIn={signIn}/>
         }/>
         <Route path="marketplace" element={
           currentUser
             ? <Marketplace currentUser={currentUser} contract={contract}/>
-            : <SignIn/>
+            : <SignIn signIn={signIn}/>
         }/>
         <Route path="*" element={<NotFound/>}/>
       </Route>
